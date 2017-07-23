@@ -1,0 +1,111 @@
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+// ——————————————————————————————————————————————————
+// TextScramble
+// ——————————————————————————————————————————————————
+
+var TextScramble = function () {
+  function TextScramble(el) {
+    _classCallCheck(this, TextScramble);
+
+    this.el = el;
+    this.chars = '!<>-_\\/[]{}—=+*^?#________';
+    this.update = this.update.bind(this);
+  }
+
+  _createClass(TextScramble, [{
+    key: 'setText',
+    value: function setText(newText) {
+      var _this = this;
+
+      var oldText = this.el.innerText;
+      var length = Math.max(oldText.length, newText.length);
+      var promise = new Promise(function (resolve) {
+        return _this.resolve = resolve;
+      });
+      this.queue = [];
+      for (var i = 0; i < length; i++) {
+        var from = oldText[i] || '';
+        var to = newText[i] || '';
+        var start = Math.floor(Math.random() * 40);
+        var end = start + Math.floor(Math.random() * 40);
+        this.queue.push({ from: from, to: to, start: start, end: end });
+      }
+      cancelAnimationFrame(this.frameRequest);
+      this.frame = 0;
+      this.update();
+      return promise;
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      var output = '';
+      var complete = 0;
+      for (var i = 0, n = this.queue.length; i < n; i++) {
+        var _queue$i = this.queue[i],
+            from = _queue$i.from,
+            to = _queue$i.to,
+            start = _queue$i.start,
+            end = _queue$i.end,
+            char = _queue$i.char;
+
+        if (this.frame >= end) {
+          complete++;
+          output += to;
+        } else if (this.frame >= start) {
+          if (!char || Math.random() < 0.28) {
+            char = this.randomChar();
+            this.queue[i].char = char;
+          }
+          output += '<span class="dud">' + char + '</span>';
+        } else {
+          output += from;
+        }
+      }
+      this.el.innerHTML = output;
+      if (complete === this.queue.length) {
+        this.resolve();
+      } else {
+        this.frameRequest = requestAnimationFrame(this.update);
+        this.frame++;
+      }
+    }
+  }, {
+    key: 'randomChar',
+    value: function randomChar() {
+      return this.chars[Math.floor(Math.random() * this.chars.length)];
+    }
+  }]);
+
+  return TextScramble;
+}();
+
+// ——————————————————————————————————————————————————
+// Example
+// ——————————————————————————————————————————————————
+
+var phrases = ['"Study hard what interests you the most in the most undisciplined, irreverent and original manner possible.”<br><br>— Richard Feynman', 'Good Luck', 'RDlXTGpQdmIxY25uVDVEcS83dzVvQ0x0dElFZmVQZTc0M3pqZFJJK0NMOHo1bVZKb0sweTJ4UEk2c3lGWDV6RgovSmo1cHBQWGlFZS9sbHJpbENGQW5Ca1ZZb2V6dW9hNGVIbCtXT3Y4M1RVWlhiUzQyMHYrN0JNYWdZMmFIR0tDCkJvY0FjNFpoNHJPdkFUb3NuU2tabDgvSXQrNEQreEc2SlhoSzhORkQ1dG1RdC9zRURmd3NyM1l2NnBzODBiU04KQndUTFoxUlUvaExiL01iQVZyY2xaNXB1bWU3Qks2K0J1Y0o2Q0xEdXo3dThJekIrS1oyVnlMVUQ3ZDlGdW5JZgp3QnlUcWFJdmNpeVFXTW4zVEUrbUYyOGdQSllodG9zSXBYRFQxcWU3cDc5cFpQSFpiWU5UaWszQmw1YVl0bnlpCjREMFlCWEpMSGxaR2pPa0wyZ1hCak5GMFVaRVpFUUdic3dUbEE4N051aG5KQkZ6MGRYaXpxdHF0aFN5bDNGeW0KQ3JqeFV6a0tId2ZjN2dKN1c2QTJ2RGtFMVc4YldIVERhTUJ4alFKWnErNk94MVNwbUVqNUsxZ0hoQjZPWkVWQwo0ZEVPUXFQQjFUL1crWk5wc1ZheWJySWttUkxTcTdmNkJOWkxhbHV5K3FZMDdyZ0E4TTVyN0g0MXFzUzFkY3QwCmtLS3QrcHdDRVVhQmZMNEovTVgxdkxyUG0zbHJ1ZFh4UHR5djZpNis2VmNMOTh3enU1Um10U1FzQ1dvTUMwMWUKdkpZRTk3UjJ4MFdYdzV5S1U0Mkd5Tm5xam1MVjhzZkw0dHgrU3JmTVZpc0NVR0Q1SFZEZHlJeWVES3FEZVNXWAo2MGtQaVNCL3NMcEJaM1lEbnk5NzN6STFUelU3Ri9QeW9EYnN5Mjg1OW1mZG0yRTVZUWh4SmRpMys4RzNhL29mCk5SbFhZNjA2djNsbVJjdzVSbm91ME82WTFNbUpHZlFLVEVxUDRGME96RVM2SExaYkZYNFVueEduYXUzbVc0ZG0KYTdYVDhMaWU0UlJ4Vjc1ektBeXIvdDVGOXc0TjBNZVNDWWNvUVd5c2drRU53emdYZjMzNDhKS1NYVjdCQUNlNgo2Vmx6TGQvSExRdFRkZExwQmUrWWRKd1hHYVVINEoxNXFvN01FZXNnQkxJdDhkYllqWjRRR1g1QXU1YmVQU0g1CmtnSkxGUXlFczNPOFQ0eUZWL3orRFcvUHd1Q2NnVyt2T0dLdUV3TjBidnZXVEZZRDJPZEhGMy9Ja3BHMnRhTjYKdHBsakg2RHBPalRyWnZWbmI2NUlrMVhvdUlIYWJ4RHl3cWovV3RyVHpJUkZadEU3ZGZkYmJUN0g1SGl0UVc2ZQo5MHZSSlJnVm9vN1hwQTRVd2RVSklEZUtVZjI5V05mdGJhZXBGWlJMTDYzcE1aWmV5NlpJSytMd0tVUVNCNVVaCmVXdGF6WVdaWVppTUdlOGxiU00zUytQZ0tqeUZ0cFhQYkgzcm93Y0gwZkZHT3lQV09hQnlSWjc4Uk8yNEdSY0kKbFB6SW9sK2hLNDFISHpsVHA3eVlIbjFzN21VRWVYVDV4bE5UK3lRak1rQldQV0hQUEVoU3NJY3JXK05lR0VTVAp2b3AzUkhralZadlZKeFIvRzN6RXo1Rm5GdEwwdWlLNzU1Z0VUNjE2aDB5YVFrUjVJNlV1ZkF6MHRLTlRXZG44Cm1PdkdrdjhiVGREb01ab1RkYnNWcG5RUUI5aWJhTTJNM0xWbVlXWkNUQXlQVm1QVjEwY0trNGZURjVzeFZTS1gKRHkrM3RWaTFHUGNoQ3FXbnloVEFzNkRqOEY4T2wxWDAvaUh4andlQXFkNEhhcFdpRUZiWk8xMFIrbFYvVC8wdQo4SllJU3pCUFZ6OXFhdDh3OVdiYmQ3UmxBVDZOM2JHSmxEdDBLdTNxQk0zY0ZWN0RScXRKRWFtNTUwTFJRaDdJCkk0WkFJV05LZ0lLTE1sV1ZVYXkxVkNyZ2VvaEhKc1JOMUM2MStSZzVEd0hreHNxMTlRYnVxOVdaeGdJMWJZMHYKekxaU3ZINzQvelFhU25nelVQTEUwQXdDL2xQNk1tT2tKcVArKzZ0RnF3T1JaWTZ6Z2RacmlPMFR0MHZ3Q1ArSwpaUWpPMkFqMGk2dk4rZVQ0dkI3RVpGWGV4WWFjOFltbHVCOUZ4dUZlRTRQSjY4V2NnK0xKbDloRXRJK0c2MkxxCk13TzE4YUtmYWp4UTJueXdTbElxUDN5V2MwOTN0UFBJWVMvMG1RbmFBaWs5YmV0c2tuVTRTMmtWUW1uV3ZxZDgKOHZxeUZ6eWhMUWZzVW8xRitEQnl4bzFSMDVRcjA1VURoUk9ZbGRENjRpeDFMaTE2WW8vMGtUMmEzYUMyd1djQgpOSzE1Z3o2V1dlMytjdmd3WlFTekh5aS95ZTU3K0duc3NwTjJmZ3BvM1d4SCszUWtQZUZVTncwK3h5SStPZ21oCjFzL0ltaW5ybFNwdHVaS01TU2VRdUp0NVprSkxVSUE0NTUxN1Z3Ulc2bFVuYTlKY2luRnFlOWkvbDZ1T3g4R00KNUF1UlBkTEw5REFkTHRrOXdzR1JJc2lTTGQ1RWZqdS9ha0lZV3VZNGFQVkoxcGpkZzd4OHYvUnZDY1huYWxwdwpSZUs3MDJmT0JDSnZyNzU3SDlZdDBEYnlJYlZBc1dCY0dsV2hQV29XcHJ6VFVOaGRPOUdwRHZyRnZ4b2FudnVaCi9DZTIxemhzbldEcGlsT2E0UTZLcXUrRXJaalZ2LzRpME5mc3IvL3J6MWlRQmprQURlVndSaGRCME9tbEJhcW8KclBycDQ3VlZPemhQS28yYUd4b2U2MnNVNUw1bG1mcWI3L1o2QkpCSnIveThrZ3g4RzE3WnpiK3lhSFRhdjljawpTYllFa2lnaHc1Y1RRazV2RStZdEhEMDEwRm84VUp3UHh5Y0pNL2FlczEwczJRMWQvRHk5aytTYnpTbDFLdElLCjc2eTNkT01FRWRteDVudHdyMzRHdjBZVTRDaERKQ0g4ODlkY1hkZi8yOEpaNXpPOVVzb1NzTTlWc2ExS0d1cTYKaUdIMGxEZmhDcnJCdExDZnNVOWdiUWwrUmx6djJUT0ErS3REWGZMdlR0NEpyblZsTlhrM3I0SDVOUy9RQVdYcApMNUl1VktNWWpIQzlCVmJtRGhsQWxUUUhvR0NCVk4vUGI3bytnYUpNSXczV2pqWXJtczFBY20zZU85ZlRHU2V2CjVsTTFQek0yUDJSQnlSOHhIcmJXalRTMzJJTjBXb2M0R2VYNjNmWTdPVGpFblAwN3RhbS85QitYQkFNN2daNzIKRlFibTc4NkdlY2kwNzRDK1dRenhXa0VEUzJnN1hVSWZwMTZVQms0S3RSekk0OExGU1JtZkpjZnFmd2poV1htYwpuZk5lNkpIU09mdUt3NVlLTW0ySk5IbS90RC8rNG0xRGFwang2aGRMdWxtMFlCTVp0WGdNNC9oTGVFaDlvSzVVCkIydTM2TTNoZUU4QXdCdFNUM09CYVk4eUIyRW5RajF2N0tuK244WjdHSzMyalUyZ282MTRUekNCbVRwNzNxeWMKaHJGS2xJeEVLOURodG54V1R2UnBLMk9RZE5mVjVoM2pQOWdod3V6SldBMD0='];
+
+var el = document.querySelector('.text');
+var fx = new TextScramble(el);
+
+var counter = 0;
+var next = function next() {
+  fx.setText(phrases[counter]).then(function () {
+    if(counter < phrases.length-1){
+      console.log('-----');
+      console.log(counter);
+      console.log(phrases[counter].length);
+      setTimeout(next, 1500 + 30 * phrases[counter].length);
+      counter = (counter + 1);
+    }
+    else{
+      console.log('Stop');
+      el.setAttribute("style", "word-break: break-all;");
+    }
+  });
+};
+
+next();
